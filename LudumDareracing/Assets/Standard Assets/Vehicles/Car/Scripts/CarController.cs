@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace UnityStandardAssets.Vehicles.Car
 {
@@ -36,6 +37,7 @@ namespace UnityStandardAssets.Vehicles.Car
         [SerializeField] private float m_RevRangeBoundary = 1f;
         [SerializeField] private float m_SlipLimit;
         [SerializeField] private float m_BrakeTorque;
+        public Text textPoints;
 
         private Quaternion[] m_WheelMeshLocalRotations;
         private Vector3 m_Prevpos, m_Pos;
@@ -46,6 +48,7 @@ namespace UnityStandardAssets.Vehicles.Car
         private float m_CurrentTorque;
         private Rigidbody m_Rigidbody;
         private const float k_ReversingThreshold = 0.01f;
+        private float points;
 
         public bool Skidding { get; private set; }
         public float BrakeInput { get; private set; }
@@ -69,8 +72,17 @@ namespace UnityStandardAssets.Vehicles.Car
 
             m_Rigidbody = GetComponent<Rigidbody>();
             m_CurrentTorque = m_FullTorqueOverAllWheels - (m_TractionControl*m_FullTorqueOverAllWheels);
+            points = 0;
         }
 
+        void OnTriggerEnter(Collider other) {
+            if(other.gameObject.CompareTag("pickUp")) {
+                other.gameObject.SetActive(false);
+                points += 1;
+                m_Topspeed += 10;
+                textPoints.text = " " + points;
+            }
+        }
 
         private void GearChanging()
         {
@@ -258,8 +270,7 @@ namespace UnityStandardAssets.Vehicles.Car
         // this is used to add more grip in relation to speed
         private void AddDownForce()
         {
-            m_WheelColliders[0].attachedRigidbody.AddForce(-transform.up*m_Downforce*
-                                                         m_WheelColliders[0].attachedRigidbody.velocity.magnitude);
+            m_WheelColliders[0].attachedRigidbody.AddForce(-transform.up*m_Downforce*m_WheelColliders[0].attachedRigidbody.velocity.magnitude);
         }
 
 
@@ -339,11 +350,11 @@ namespace UnityStandardAssets.Vehicles.Car
         {
             if (forwardSlip >= m_SlipLimit && m_CurrentTorque >= 0)
             {
-                m_CurrentTorque -= 10 * m_TractionControl;
+                m_CurrentTorque -= 2 * m_TractionControl;
             }
             else
             {
-                m_CurrentTorque += 10 * m_TractionControl;
+                m_CurrentTorque += 9 * m_TractionControl;
                 if (m_CurrentTorque > m_FullTorqueOverAllWheels)
                 {
                     m_CurrentTorque = m_FullTorqueOverAllWheels;

@@ -297,7 +297,7 @@ namespace UnityStandardAssets.Utility.Inspector
                                             {
                                                 items.MoveArrayElement(i, i - 1);
                                             }
-                                            break;
+                                        break;
                                     }
                                 }
                             }
